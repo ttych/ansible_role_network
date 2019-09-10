@@ -1,2 +1,8 @@
 ---
-# tasks file for ansible_role_network
+
+- name: set network configuration with netplan
+  include_tasks: netplan.yml
+  when: ansible_distribution == "Ubuntu"
+
+# - name: set resolv configuration
+#   include_tasks: resolv.yml

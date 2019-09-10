@@ -1,0 +1,44 @@
+---
+
+- name: set netplan directory permission
+  file:
+    path: /etc/netplan
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: guess expected network mode
+  set_fact:
+    network_expected_mode: "{{ network_mode | default(hosttype) }}"
+
+- name: use static netplan configuration
+  set_fact:
+    network_netplan_template_src: static_netplan.yml
+    network_netplan_template_dest: /etc/netplan/01-netcfg.yaml
+  when: network_expected_mode == 'server'
+
+- name: use NetworkManager netplan configuration
+  set_fact:
+    network_netplan_template_src: network_manager_netplan.yml
+    network_netplan_template_dest: /etc/netplan/01-network-manager-all.yaml
+  when: network_expected_mode == 'desktop'
+
+- name: use dynamic netplan configuration
+  set_fact:
+    network_netplan_template_src: dynamic_netplan.yml
+    network_netplan_template_dest: /etc/netplan/01-netcfg.yaml
+  when: network_expected_mode == 'dhcp'
+
+- name: install netplan
+  template:
+    src: "{{ network_netplan_template_src }}"
+    dest: "{{ network_netplan_template_dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  register: netplan_install
+
+- name: reload netplan
+  shell: netplan apply
+  when: netplan_install.changed
