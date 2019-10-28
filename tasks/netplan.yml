@@ -22,7 +22,7 @@
   set_fact:
     network_netplan_template_src: network_manager_netplan.yml
     network_netplan_template_dest: /etc/netplan/01-network-manager-all.yaml
-  when: network_expected_mode == 'desktop'
+  when: network_expected_mode == 'desktop' or network_expected_mode == 'network_manager'
 
 - name: use dynamic netplan configuration
   set_fact:
