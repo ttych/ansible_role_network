@@ -39,6 +39,11 @@
     mode: 0644
   register: netplan_install
 
-- name: reload netplan
-  shell: netplan apply
+- block:
+    - name: generate netplan
+      shell: netplan generate
+
+    - name: apply netplan
+      shell: netplan apply
+
   when: netplan_install.changed
