@@ -1,0 +1,16 @@
+---
+
+- name: set network_mode to static
+  set_fact:
+    network_mode: static
+  when: network_mode is not defined and hosttype == 'server'
+
+- name: set network_mode to desktop
+  set_fact:
+    network_mode: desktop
+  when: network_mode is not defined and hosttype == 'desktop'
+
+- name: set network_mode to network-manager
+  set_fact:
+    network_mode: dynamic
+  when: network_mode is not defined

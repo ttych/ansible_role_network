@@ -8,27 +8,23 @@
     group: root
     mode: 0755
 
-- name: guess expected network mode
-  set_fact:
-    network_expected_mode: "{{ network_mode | default(hosttype) }}"
-
 - name: use static netplan configuration
   set_fact:
     network_netplan_template_src: static_netplan.yml
     network_netplan_template_dest: /etc/netplan/01-netcfg.yaml
-  when: network_expected_mode == 'server'
+  when: network_mode == 'static'
 
 - name: use NetworkManager netplan configuration
   set_fact:
     network_netplan_template_src: network_manager_netplan.yml
     network_netplan_template_dest: /etc/netplan/01-network-manager-all.yaml
-  when: network_expected_mode == 'desktop' or network_expected_mode == 'network_manager'
+  when: network_mode == 'desktop'
 
 - name: use dynamic netplan configuration
   set_fact:
     network_netplan_template_src: dynamic_netplan.yml
     network_netplan_template_dest: /etc/netplan/01-netcfg.yaml
-  when: network_expected_mode == 'dhcp'
+  when: network_mode == 'dynamic'
 
 - name: install netplan
   template:
