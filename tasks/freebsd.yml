@@ -1,1 +1,24 @@
 ---
+
+# ifconfig_em0="inet 192.168.0.9 netmask 255.255.255.0"
+# ifconfig_em1="inet 78.193.116.109 netmask 255.255.254.0" 
+# defaultrouter="78.193.117.254"
+
+- name: set default interface to static
+  include: sysrc.yml key="{{ item.key }}" value="{{ item.value }}"
+  loop:
+    - { key: "ifconfig_{{ ansible_default_ipv4.interface }}", value: "inet {{ ansible_default_ipv4.address }} netmask {{ ansible_default_ipv4.netmask }}" }
+    - { key: "defaultrouter", value: "{{ ansible_default_ipv4.gateway }}" }
+  when: network_mode in ['server', 'router']
+
+- name: set default interface to dhcp
+  include: sysrc.yml key="ifconfig_{{ ansible_default_ipv4.interface }}" value="dhcp"
+  when: network_mode in ['desktop', 'dynamic']
+
+- name: enable gateway
+  include: sysrc.yml key="gateway_enable" value="YES"
+  when: network_mode == 'router'
+
+- name: enable gateway ipv6
+  include: sysrc.yml key="ipv6_gateway_enable" value="YES"
+  when: network_mode == 'router' and want_ipv6
